@@ -1,4 +1,6 @@
 local crud = require "kong.api.crud_helpers"
+local app_helpers = require "lapis.application"
+local responses = require "kong.tools.responses"
 
 return {
   ["/upstreams/"] = {
@@ -40,7 +42,48 @@ return {
     end,
 
     GET = function(self, dao_factory)
-      crud.paginated_set(self, dao_factory.targets)
+      -- by default, just get a paginated list
+      if not self.params.active then
+        return crud.paginated_set(self, dao_factory.targets)
+      end
+
+      self.params.active = nil
+
+      -- user wanted a list of all active targets for this upstream
+      local target_history, err = dao_factory.targets:find_all({
+        upstream_id = self.params.upstream_id,
+      })
+
+      if not target_history then
+        return app_helpers.yield_error(err)
+      end
+
+      -- sort and walk based on target and creation time
+      for _, target in ipairs(target_history) do
+        target.order = target.target..":"..target.created_at
+      end
+      table.sort(target_history, function(a, b) return a.order > b.order end)
+
+      local ignored = {}
+      local found = {}
+      local found_n = 0
+
+      for _, entry in ipairs(target_history) do
+        if not found[entry.target] and not ignored[entry.target] then
+          if entry.weight ~= 0 then
+            found_n = found_n + 1
+            found[found_n] = entry
+          else
+            ignored[entry.target] = true
+          end
+        end
+      end
+
+      -- for now lets not worry about rolling our own pagination
+      return responses.send_HTTP_OK {
+        total = found_n,
+        data  = found,
+      }
     end,
 
     POST = function(self, dao_factory, helpers)
