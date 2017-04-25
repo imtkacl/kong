@@ -34,7 +34,7 @@
 # Note: See http://nginx.org/en/docs/ngx_core_module.html#error_log for a list
 # of accepted values.
 
-#custom_plugins =                # Comma-separated list of additional plugins
+custom_plugins = ldap-auth-plus               # Comma-separated list of additional plugins
                                  # this node should load.
                                  # Use this property to load custom plugins
                                  # that are not bundled with Kong.
