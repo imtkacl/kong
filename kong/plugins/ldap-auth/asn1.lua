@@ -315,9 +315,9 @@ _M.ASN1Encoder = {
     if len < 128 then
       return string_char(len)
     else
-ngx_log(ngx_debug, "[ldap-auth] [encodeLength] len: "..len)
-ngx_log(ngx_debug, "[ldap-auth] [encodeLength] bit: "..bit)
-ngx_log(ngx_debug, "[ldap-auth] [encodeLength] bit.mod: ".. bit.mod)
+ngx_log(ngx.DEBUG, "[ldap-auth] [encodeLength] len: "..len)
+ngx_log(ngx.DEBUG, "[ldap-auth] [encodeLength] bit: "..bit)
+ngx_log(ngx.DEBUG, "[ldap-auth] [encodeLength] bit.mod: ".. bit.mod)
       local parts = {}
 
       while len > 0 do
