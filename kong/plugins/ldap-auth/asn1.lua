@@ -8,6 +8,7 @@ local setmetatable = setmetatable
 local table = table
 local string_reverse = string.reverse
 local string_char = string.char
+local ngx_log = ngx.log
 
 local _M = {}
 
@@ -314,6 +315,9 @@ _M.ASN1Encoder = {
     if len < 128 then
       return string_char(len)
     else
+ngx_log(ngx_debug, "[ldap-auth] [encodeLength] len: "..len)
+ngx_log(ngx_debug, "[ldap-auth] [encodeLength] bit: "..bit)
+ngx_log(ngx_debug, "[ldap-auth] [encodeLength] bit.mod: ".. bit.mod)
       local parts = {}
 
       while len > 0 do
