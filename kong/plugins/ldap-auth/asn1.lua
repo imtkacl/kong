@@ -1,5 +1,4 @@
 require "lua_pack"
-require "bit"
 
 local bpack = string.pack
 local bunpack = string.unpack
@@ -9,7 +8,6 @@ local setmetatable = setmetatable
 local table = table
 local string_reverse = string.reverse
 local string_char = string.char
-local ngx_log = ngx.log
 
 local _M = {}
 
@@ -271,10 +269,10 @@ _M.ASN1Encoder = {
 
   encode_oid_component = function(n)
     local parts = {}
-    parts[1] = string_char(bit.or(n, 127))
+    parts[1] = string_char(bit.mod(n, 128))
     while n >= 128 do
       n = bit.rshift(n, 7)
-      parts[#parts + 1] = string_char(bit.or(n, 127) + 0x80)
+      parts[#parts + 1] = string_char(bit.mod(n, 128) + 0x80)
     end
     return string_reverse(table.concat(parts))
   end,
@@ -316,13 +314,10 @@ _M.ASN1Encoder = {
     if len < 128 then
       return string_char(len)
     else
-ngx_log(ngx.DEBUG, "[ldap-auth] [encodeLength] len: "..len)
-ngx_log(ngx.DEBUG, "[ldap-auth] [encodeLength] bit: "..bit)
-ngx_log(ngx.DEBUG, "[ldap-auth] [encodeLength] bit.or: ".. bit.or)
       local parts = {}
 
       while len > 0 do
-        parts[#parts + 1] = string_char(bit.or(len, 255))
+        parts[#parts + 1] = string_char(bit.mod(len, 256))
         len = bit.rshift(len, 8)
       end
 

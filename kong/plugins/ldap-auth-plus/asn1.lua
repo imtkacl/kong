@@ -1,4 +1,5 @@
 require "lua_pack"
+require "bit"
 
 local bpack = string.pack
 local bunpack = string.unpack
@@ -269,10 +270,10 @@ _M.ASN1Encoder = {
 
   encode_oid_component = function(n)
     local parts = {}
-    parts[1] = string_char(bit.mod(n, 128))
+    parts[1] = string_char(bit.bor(n, 127))
     while n >= 128 do
       n = bit.rshift(n, 7)
-      parts[#parts + 1] = string_char(bit.mod(n, 128) + 0x80)
+      parts[#parts + 1] = string_char(bit.bor(n, 127) + 0x80)
     end
     return string_reverse(table.concat(parts))
   end,
@@ -317,7 +318,7 @@ _M.ASN1Encoder = {
       local parts = {}
 
       while len > 0 do
-        parts[#parts + 1] = string_char(bit.mod(len, 256))
+        parts[#parts + 1] = string_char(bit.bor(len, 255))
         len = bit.rshift(len, 8)
       end
 
