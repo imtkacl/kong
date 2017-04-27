@@ -1,3 +1,5 @@
+require "lua_pack"
+
 local asn1 = require "kong.plugins.ldap-auth-plus.asn1"
 local bunpack = string.unpack
 
