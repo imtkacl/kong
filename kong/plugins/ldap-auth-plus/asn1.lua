@@ -270,10 +270,10 @@ _M.ASN1Encoder = {
 
   encode_oid_component = function(n)
     local parts = {}
-    parts[1] = string_char(bit.bor(n, 127))
+    parts[1] = string_char(bit.band(n, 127))
     while n >= 128 do
       n = bit.rshift(n, 7)
-      parts[#parts + 1] = string_char(bit.bor(n, 127) + 0x80)
+      parts[#parts + 1] = string_char(bit.band(n, 127) + 0x80)
     end
     return string_reverse(table.concat(parts))
   end,
@@ -318,7 +318,7 @@ _M.ASN1Encoder = {
       local parts = {}
 
       while len > 0 do
-        parts[#parts + 1] = string_char(bit.bor(len, 255))
+        parts[#parts + 1] = string_char(bit.band(len, 255))
         len = bit.rshift(len, 8)
       end
 
