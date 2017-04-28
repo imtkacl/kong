@@ -79,12 +79,7 @@ local function load_credential(given_username, given_password, conf)
   return {username = given_username, password = given_password}
 end
 
-local function authenticate(conf, given_credentials)
-  local given_username, given_password = retrieve_credentials(given_credentials)
-  if given_username == nil then
-    return false
-  end
-
+local function authenticate(conf, given_username, given_password)
   local credential, err, status = cache.get_or_set(cache.ldap_credential_key(ngx.ctx.api.id, given_username),
       conf.cache_ttl, load_credential, given_username, given_password, conf)
   if status then responses.send(status, err) end
@@ -122,6 +117,9 @@ end
 
 local function do_authentication(conf)
   local headers = request.get_headers()
+  local given_username = headers[HEADER_USERNAME]
+  local given_password = headers[HEADER_PASSWORD]
+  --[[
   local authorization_value = headers[AUTHORIZATION]
   local proxy_authorization_value = headers[PROXY_AUTHORIZATION]
 
@@ -131,7 +129,13 @@ local function do_authentication(conf)
     return false, {status = 401}
   end
 
-  local is_authorized, credential = authenticate(conf, proxy_authorization_value)
+  local given_username, given_password = retrieve_credentials(given_credentials)
+  ]]
+  if (given_username == nil or given_password) then
+    return false, {status = 401}
+  end
+
+  local is_authorized, credential = authenticate(conf, given_username, given_password)
   --[[
   if not is_authorized then
     is_authorized, credential = authenticate(conf, authorization_value)
@@ -142,8 +146,12 @@ local function do_authentication(conf)
   end
 
   if conf.hide_credentials then
+    --[[
     request.clear_header(AUTHORIZATION)
     request.clear_header(PROXY_AUTHORIZATION)
+    ]]
+    request.clear_header(HEADER_USERNAME)
+    request.clear_header(HEADER_PASSWORD)
   end
 
   --set_consumer(nil, credential)
