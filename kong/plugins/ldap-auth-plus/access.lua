@@ -131,7 +131,7 @@ local function do_authentication(conf)
 
   local given_username, given_password = retrieve_credentials(given_credentials)
   ]]
-  if (given_username == nil or given_password) then
+  if (given_username == nil or given_password == nil) then
     return false, {status = 401}
   end
 
