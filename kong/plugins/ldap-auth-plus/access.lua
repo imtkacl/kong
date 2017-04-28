@@ -119,6 +119,8 @@ local function do_authentication(conf)
   local headers = request.get_headers()
   local given_username = headers[HEADER_USERNAME]
   local given_password = headers[HEADER_PASSWORD]
+
+  ngx_log(ngx_debug, "[ldap-auth-plus] retrieve username: "..given_username.." and password: "..given_password)
   --[[
   local authorization_value = headers[AUTHORIZATION]
   local proxy_authorization_value = headers[PROXY_AUTHORIZATION]
