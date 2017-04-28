@@ -16,6 +16,8 @@ local tostring =  tostring
 
 local AUTHORIZATION = "authorization"
 local PROXY_AUTHORIZATION = "proxy-authorization"
+local HEADER_USERNAME = "X-username"
+local HEADER_PASSWORD = "X-password"
 
 local _M = {}
 
@@ -130,10 +132,11 @@ local function do_authentication(conf)
   end
 
   local is_authorized, credential = authenticate(conf, proxy_authorization_value)
+  --[[
   if not is_authorized then
     is_authorized, credential = authenticate(conf, authorization_value)
   end
-
+  ]]
   if not is_authorized then
     return false, {status = 403, message = "Invalid authentication credentials"}
   end
@@ -143,7 +146,7 @@ local function do_authentication(conf)
     request.clear_header(PROXY_AUTHORIZATION)
   end
 
-  set_consumer(nil, credential)
+  --set_consumer(nil, credential)
 
   return true
 end
@@ -153,12 +156,14 @@ function _M.execute(conf)
   if not ok then
     if conf.anonymous ~= "" then
       -- get anonymous user
+      --[[
       local consumer, err = cache.get_or_set(cache.consumer_key(conf.anonymous),
                        nil, load_consumer, conf.anonymous, true)
       if err then
         responses.send_HTTP_INTERNAL_SERVER_ERROR(err)
       end
       set_consumer(consumer, nil)
+      ]]
     else
       return responses.send(err.status, err.message)
     end
